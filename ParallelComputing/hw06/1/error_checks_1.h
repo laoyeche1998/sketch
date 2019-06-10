@@ -9,7 +9,7 @@
 
 #define CUDA_CHECK(errarg)   __checkErrorFunc(errarg, __FILE__, __LINE__)
 #define CHECK_ERROR_MSG(errstr) __checkErrMsgFunc(errstr, __FILE__, __LINE__)
-//
+
 inline void __checkErrorFunc(cudaError_t errarg, const char* file, 
 			     const int line)
 {
