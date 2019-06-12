@@ -26,19 +26,28 @@ int main(void)
         hA[i] = (double) i;
         hB[i] = (double) i * i;
     }
-
+ 
     /* 
        Add memory allocations and copies. Wrap your runtime function
        calls with CUDA_CHECK( ) macro
     */
+    
     CUDA_CHECK( cudaMalloc((void**)&dA, sizeof(double)*N) );
-    #error Add the remaining memory allocations and copies
+    CUDA_CHECK( cudaMalloc((void**)&dB, sizeof(double)*N) );
+    CUDA_CHECK( cudaMalloc((void**)&dC, sizeof(double)*N) );
+    CUDA_CHECK( cudaMemcpy((void*)dA, (void*)hA, sizeof(double)*N, cudaMemcpyHostToDevice) );
+    CUDA_CHECK( cudaMemcpy((void*)dB, (void*)hB, sizeof(double)*N, cudaMemcpyHostToDevice) );
+    //#error Add the remaining memory allocations and copies
 
     // Note the maximum size of threads in a block
-    dim3 grid, threads;
+    int blockSize = 128;
+    int numBlocks = (N + blockSize - 1) / blockSize;
+    dim3 grid(numBlocks), threads(blockSize);
 
     //// Add the kernel call here
-    #error Add the CUDA kernel call
+    //CUDA_CHECK( (vector_add<<<grid,threads>>>(dC,dA,dB,N)) );
+    vector_add<<<grid,threads>>>(dC,dA,dB,N);
+    //#error Add the CUDA kernel call
 
 
     // Here we add an explicit synchronization so that we catch errors
@@ -47,9 +56,13 @@ int main(void)
     CHECK_ERROR_MSG("vector_add kernel");
 
     //// Copy back the results and free the device memory
-    #error Copy back the results and free the allocated memory
+    CUDA_CHECK( cudaMemcpy((void*)hC,(void*)dC,sizeof(double)*N,cudaMemcpyDeviceToHost ) );
+    CUDA_CHECK( cudaFree(dA) );
+    CUDA_CHECK( cudaFree(dB) );
+    CUDA_CHECK( cudaFree(dC) );
+    //#error Copy back the results and free the allocated memory
 
-    for (int i = 0; i < N; i++)
+    for(int i = 0; i < N; i++)
         printf("%5.1f\n", hC[i]);
 
     return 0;
