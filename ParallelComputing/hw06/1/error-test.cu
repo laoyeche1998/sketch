@@ -18,7 +18,7 @@ __global__ void vector_add(double *C, const double *A, const double *B, int N)
 int main(void)
 {
     const int N = 20;
-    const int ThreadsInBlock = 128;
+    const int ThreadsInBlock = 1025;
     double *dA, *dB, *dC;
     double hA[N], hB[N], hC[N];
   
@@ -40,7 +40,7 @@ int main(void)
     //#error Add the remaining memory allocations and copies
 
     // Note the maximum size of threads in a block
-    int blockSize = 128;
+    int blockSize = ThreadsInBlock;
     int numBlocks = (N + blockSize - 1) / blockSize;
     dim3 grid(numBlocks), threads(blockSize);
 
@@ -52,7 +52,7 @@ int main(void)
 
     // Here we add an explicit synchronization so that we catch errors
     // as early as possible. Don't do this in production code!
-    cudaDeviceSynchronize();
+    //cudaDeviceSynchronize();
     CHECK_ERROR_MSG("vector_add kernel");
 
     //// Copy back the results and free the device memory
